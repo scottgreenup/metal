@@ -1,0 +1,25 @@
+#!/bin/bash
+
+venv_dir="./.venv/"
+
+if [[ ! $VIRTUAL_ENV ]]; then
+    echo "Activating virtual env: ${venv_dir}"
+
+    if [[ -e "${venv_dir}/bin/activate" ]]; then
+        if ! source "${venv_dir}/bin/activate"; then
+            echo "Failed to enter virtual environment."
+            exit
+        fi
+    else
+        echo "${venv_dir}/bin/activate does not exist"
+    fi
+fi
+
+if [[ ! $VIRTUAL_ENV ]]; then
+    echo "VIRTUAL_ENV missing..."
+    exit
+fi
+
+export FLASK_APP=main.py
+export FLASK_DEBUG=1
+python -m flask run --port=8000 #--host=0.0.0.0

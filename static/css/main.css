@@ -1,0 +1,42 @@
+.container-centered {
+  text-align: center;
+}
+
+.form-horizontal {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.container-outer {
+  border: 1px solid #AAA;
+  max-width: 640px;
+  text-align: center;
+}
+
+.container-inner {
+  max-width: 100%;
+  margin-top: 30px;
+  text-align: left;
+}
+
+#static-filename {
+  text-align: left;
+  border: 1px solid #bbb;
+}
+
+
+.progress {
+  position: relative;
+  border: 1px solid #000;
+}
+
+.bar {
+  height: 30px;
+  background-color: #66D9EF;
+  width: 0%;
+}
+
+.percent {
+  position: absolute;
+  right: 2%;
+}
