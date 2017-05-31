@@ -4,3 +4,5 @@ numpy
 scipy
 python_speech_features
 sklearn
+mechanicalsoup
+requests
