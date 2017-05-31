@@ -4,6 +4,8 @@ import scipy.io.wavfile as wav
 import numpy
 import os
 
+import random
+
 import matplotlib.pyplot as plt
 
 from pydub import AudioSegment
@@ -60,8 +62,18 @@ def load_mfccs(dbfile='./main.db'):
 
     return database
 
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
+def classify(filename, classifier):
+    logging.info("classifying {}".format(filename))
+
+    mf = get_features(filename)
+    mf = mf[100:1600].flatten().tolist()
+    mf = mf[:1500]
+    pred = classifier.predict_proba([mf])
+    return pred[0][1] > pred[0][0]
+
+def build_model():
+
+    logging.info("building model...")
 
     data = []
     targets = []
@@ -72,9 +84,9 @@ if __name__ == '__main__':
     genres = ['Metal', 'Electronic', 'Jazz', 'Classical']
 
     for genre in genres:
-        for filename in os.listdir('./audio_sample/{}/'.format(genre)):
+        for filename in os.listdir('./audio_dataset/{}/'.format(genre)):
             filenames.append((
-                './audio_sample/{}/{}'.format(genre, filename),
+                './audio_dataset/{}/{}'.format(genre, filename),
                 filename,
                 int(genre == 'Metal')
             ))
@@ -82,34 +94,39 @@ if __name__ == '__main__':
     for filedata in filenames:
         filepath, filename, target = filedata
 
+        logging.debug('processing {} ({})'.format(filepath, target))
+
         if filename in database:
+            if len(database[filename]) != 1500:
+                logging.debug(' -> skipping');
+                continue
+
+            logging.debug(' -> found in cache');
             data.append(database[filename])
-            targets.append(1)
+            targets.append(target)
             continue
 
-        logging.info('processing {}'.format(filepath))
-
         mf = get_features(filepath)[100:1600].flatten().tolist()
-
         mf = mf[:1500]
+
+        save_mfcc(filename, mf)
+
         data.append(mf)
         targets.append(target)
 
-    logging.info('fitting')
     classifier = KNeighborsClassifier(
-        n_neighbors=5)
+        n_neighbors=10)
     classifier.fit(data, targets)
 
-    #mf = get_features('/home/scott/pull/music/Metal/ffe1a65b732877fb68a3300097be8665')
-    mf = get_features('./audio_sample/Metal/01dd4690fffa6f4cbd86af3faa7adc37')
-    mf = mf[100:1600].flatten().tolist()
-    mf = mf[:1500]
+    logging.info("built model, done")
+    return classifier
 
-    prediction_probabilities = classifier.predict_proba([mf])
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
 
-    logging.info(
-        'classified as {}'
-        .format(prediction_probabilities))
+    classifier = build_model()
+    pred = classify(
+        './audio_dataset/Classical/a7bc0f4161bfba9e16d0c4186e437020',
+        classifier)
 
-
-
+    logging.info(pred)

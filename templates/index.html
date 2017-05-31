@@ -46,6 +46,10 @@
         <div class="bar" id="progress-bar"></div>
       </div>
     </div>
+
+    <div class="container container-inner">
+      <h1 id="result"></h1>
+    </div>
   </div>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -80,14 +84,19 @@
           // TODO we should've received a request id, we can use that to check
           // the progress of our classifier
           console.log(xhr.responseText);
+
+          var percentVal = 100 + '%';
+          progress_bar.width(percentVal);
+          progress_percent.html(percentVal + " ");
+
+          if (xhr.responseText == 'true') {
+            $('#result').html('METAL!');
+          } else {
+            $('#result').html('Not metal.');
+          }
         }
       });
-
-
-
     }
-
-
 
   </script>
 </body>

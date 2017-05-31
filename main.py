@@ -14,7 +14,7 @@ from flask import (
 from pydub import AudioSegment
 from werkzeug import secure_filename
 
-from classify import classify
+from classify import classify, build_model
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -27,6 +27,7 @@ app.config['UPLOAD_FOLDER_WAV'] = './audio_data'
 MEGABYTE = 1024 * 1024
 app.config['MAX_CONTENT_LENGTH'] = 20 * MEGABYTE
 
+classifier = build_model()
 
 @app.route('/', methods=['GET', 'POST'])
 def route_index():
@@ -62,11 +63,22 @@ def route_index():
                 song = AudioSegment.from_file(file_location)
                 song.export(new_file_loc)
 
-                classify(new_file_loc)
+                if classify(new_file_loc, classifier):
+                    return "true"
+                else:
+                    return "false"
 
             return h
 
     return render_template('index.html', title="Is It Metal?")
+
+@app.route('/metal', methods=['GET', 'POST'])
+def route_metal():
+    return render_template('index.html', result="METAL!")
+
+@app.route('/not_metal', methods=['GET', 'POST'])
+def route_not():
+    return render_template('index.html', result="Not metal...")
 
 @app.route('/static/css/<path:path>')
 def route_static_css(path):
